@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+        form {
+            text-align: center;
+        }
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!--    <script src="../static/js/update.js"></script>-->
+</head>
+<body>
+<h2>用户修改列表</h2>
+<form>
+    序号：<input type="text" id="id" name="id" value="{{.user.Id}}" ><br>
+    用户名：<input type="text" id="username" name="uname" value="{{.user.Uname}}"><br>
+    密码：<input type="password" id="password" name="upwd" value="{{.user.Upwd}}"><br>
+    <input type="button" value="修改" id="btn">
+</form>
+<div id="result"></div>
+<script>
+    $('#btn').click(function(){
+        var username = $('#username').val();
+        var password = $('#password').val();
+        var id = $('#id').val();
+        var ID = parseInt(id);
+        $.ajax({
+            url: '/UpdateUser', // 后端控制器路由地址
+            type: 'PUT',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({ uname: username, upwd: password,id:ID}),
+            success: function(response) {
+                // 处理返回的JSON数据
+                alert("返回的数据："+response.message)
+                console.log(response)
+                if (response.success) {
+                    // $('#result').html('<p>登录成功！</p >');
+                    window.location.href="/userlist"
+                } else {
+                    // $('#result').html('<p>登录失败：' + response.message + '</p >');
+                    window.location.href="/Updatepage/"+ID
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error occurred: ' + error);
+            }
+        });
+
+    })
+</script>
+</body>
+</html>

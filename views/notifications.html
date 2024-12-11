@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>消息通知表</title>
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+        #nextPage {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        #prevPage {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+        form {
+            text-align: center;
+        }
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<h1>消息通知表</h1>
+<body>
+<table id="Notification-table">
+
+    <thead>
+    <tr>
+
+
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            url: '/tonotifications',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                $.each(data, function (index, Notification) {
+                    var listItem = $("<tr></tr>");
+                    var id = $("<td></td>").text("id：" + Notification.id);
+                    var message_content = $("<td></td>").text("通知内容：" + Notification.message_content);
+                    var notification_date = $("<td></td>").text("通知日期：" + Notification.notification_date);
+                    var is_read = $("<td></td>").text("读取状态：" + Notification.is_read);
+                    var deleteLink = $('<button>删除</button>').on('click', function () {
+                        var confirmDelete = confirm("确定要删除竞赛 ID: " + Notification.id + " 吗？");
+                        if (confirmDelete) {
+                            $.ajax({
+                                url: "/DeleteCompetition/" + Notification.id,
+                                type: "DELETE",
+                                success: function () {
+                                    listItem.remove();
+                                }
+                            });
+                        }
+                    });
+                    var editLink = $(' <a href="#">修改 </a>').on('click', function () {
+                        window.location.href = "/UpdateCompetition?id=" + Notification.Id; // 添加用户ID作为参数
+                    });
+                    listItem.append(id);
+                    listItem.append(message_content);
+                    listItem.append(notification_date);
+                    listItem.append(is_read);
+                    listItem.append(editLink);
+                    listItem.append(deleteLink);
+                    $("#Notification-table tbody").append(listItem); // Append to table body
+                });
+            },
+        });
+    });
+
+</script>
+</body>
+</html>

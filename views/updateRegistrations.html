@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>更新报名信息</title>
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+        form {
+            text-align: center;
+        }
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>更新报名信息</h1>
+<form id="updateForm">  <!-- 添加form标签，并设置id -->
+    id：<input type="text" id="id" name="id" value="{{.Registration.Id}}" readonly><br>
+    Competition ID：<input type="text" id="CompetitionId" name="competition_id" value="{{.Registration.CompetitionId}}"><br>
+    User ID：<input type="text" id="UserId" name="user_id" value="{{.Registration.UserId}}"><br>
+    <input type="button" value="修改" id="btn">
+</form>
+<div id="result"></div>
+
+<script>
+    $('#btn').click(function(){
+        var form_data = {
+            "id": $('#id').val(),
+            "competition_id": $('#CompetitionId').val(),
+            "user_id": $('#UserId').val()
+        };
+        $.ajax({
+            url: '/UpdateRegistration',
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(form_data),  // 使用JSON.stringify()转换为JSON字符串
+            success: function(response) {
+                alert("返回的数据：" + response.message);
+                console.log(response);
+                if (response.success) {
+                    window.location.href = "/registrations";
+                } else {
+                    window.location.href = "/updateRegistration/" + $('#id').val();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error occurred: ' + error);
+            }
+        });
+    });
+</script>
+
+
+</body>
+</html>

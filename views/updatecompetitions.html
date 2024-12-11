@@ -1,0 +1,79 @@
+<!-- views/updatecompetitions.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>更新比赛</title>
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+        form {
+            text-align: center;
+        }
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>更新比赛</h1>
+<form>
+    id：<input type="text" id="id" name="id" value="{{.Competition.Id}}" readonly><br>
+    标题：<input type="text" id="Title" name="title" value="{{.Competition.Title}}"><br>
+    描述：<input type="text" id="Description" name="description" value="{{.Competition.Description}}"><br>
+    地点：<input type="text" id="Location" name="location" value="{{.Competition.Location}}"><br>
+    开始时间：<input type="text" id="StartTime" name="start_time" value="{{.Competition.StartTime}}"><br>
+    结束时间：<input type="text" id="EndTime" name="end_time" value="{{.Competition.EndTime}}"><br>
+    是否开放报名：<input type="checkbox" id="IsOpenForRegistration" name="is_open_for_registration" {{if .Competition.IsOpenForRegistration}}checked{{end}}><br>
+    <input type="submit" value="修改" id="btn">
+</form>
+<div id="result"></div>
+
+<script>
+    $('#btn').click(function(){
+        event.preventDefault();
+
+        var Location = $('#Location').val();
+        var StartTime = $('#StartTime').val();
+        var EndTime = $('#EndTime').val();
+        var IsOpenForRegistration = $('#IsOpenForRegistration').prop('checked');
+        var Title = $('#Title').val();
+        var Description = $('#Description').val();
+        var id = $('#id').val();
+        var ID = parseInt(id);
+        $.ajax({
+            url: '/UpdateCompetition', // 后端控制器路由地址
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({ title: Title, Location: Location, StartTime: StartTime, EndTime: EndTime, IsOpenForRegistration: IsOpenForRegistration, description: Description, id: ID }),
+            success: function(response) {
+                // 处理返回的 JSON 数据
+                if (response.success) {
+                    alert("更新成功");
+                    window.location.href="/competitions";
+                } else {
+                    alert("更新失败：" + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error occurred: ' + error);
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

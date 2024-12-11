@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学生报名表</title>
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+
+        #user-list-container {
+            max-width: 600px; /* 设置最大宽度 */
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.8); /* 设置背景颜色及透明度 */
+            padding: 20px;
+            border-radius: 10px; /* 设置边框圆角 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+        }
+
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+        #nextPage {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        #prevPage {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+        form {
+            text-align: center;
+        }
+
+        ul {
+            list-style: none; /* 移除列表项的默认样式 */
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px; /* 设置列表项之间的间距 */
+            padding: 10px;
+            border: 1px solid #ccc; /* 添加边框 */
+            border-radius: 5px; /* 设置边框圆角 */
+            background-color: #f9f9f9; /* 设置背景颜色 */
+        }
+
+        a, button {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px 10px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff; /* 设置链接和按钮的背景颜色 */
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #dc3545; /* 设置删除按钮的背景颜色 */
+            border: 1px solid #dc3545;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<h1>学生报名表</h1>
+<body>
+<table id="registrations-table">
+    <h2>输入报名ID</h2>
+    <form id="searchForm">
+        <label for="id">输入ID:</label>
+        <input type="text" id="id" name="id">
+        <button type="submit">搜索</button>
+    </form>
+    <button id="prevPage" >上一页</button>     <button id="nextPage">下一页</button>
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>竞赛ID</th>
+        <th>学生ID</th>
+    </tr>
+    <ul id="searchResults"></ul>
+    </thead>
+    <tbody></tbody>
+</table>
+<script>
+    $(document).ready(function() {   $('#nextPage').click(function() {
+        window.location.href="notifications";
+    });
+        $('#prevPage').on('click', function() {
+            // 在这里指定要跳转到的URL
+            window.location.href = "/CompetitionCategory";
+        });
+        $.ajax({
+            url: '/toRegistrations',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                $.each(data, function (index, Registration) {
+                    var listItem = $("<tr></tr>");
+                    var Id = $("<td></td>").text("id：" + Registration.Id);
+                    var CompetitionId = $("<td></td>").text("竞赛id：" + Registration.CompetitionId);
+                    var UserId = $("<td></td>").text("学生ID：" + Registration.UserId);
+                    var deleteLink = $('<button>删除</    button>').on('click', function () {
+                        var confirmDelete = confirm("确定要删除竞赛 ID: " + Registration.CompetitionId + " 吗？");
+                        if (confirmDelete) {
+                            $.ajax({
+                                url: "/DeleteRegistration/" + Registration.Id,
+                                type: "DELETE",
+                                success: function () {
+                                    listItem.remove();
+                                }
+                            });
+                        }
+                    });
+
+                    listItem.append(Id);
+                    listItem.append(CompetitionId);
+                    listItem.append(UserId);
+                    listItem.append(deleteLink);
+                    $("#registrations-table tbody").append(listItem); // Append to table body
+                });
+            },
+        });
+    });
+    $("#searchResults").submit(function (event) {
+        event.preventDefault();
+        var id = $("#id").val();
+        $.ajax({
+            url: "/Registration/GetByCustomerID/" + id,
+            type: "GET",
+            success: function (data) {
+                $("#searchResults").empty();
+                data.forEach(function (search) {
+                    $("#searchResults").append("<li>" + search.id + "，" + search.competition_id + "，" + search.user_id + "</li>");
+                });
+            }
+
+        });
+    });
+</script>
+</body>
+</html>

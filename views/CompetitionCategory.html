@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>竞赛类别表</title>
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+        #nextPage {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        #prevPage {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+        table {
+            width: 80%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #000;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+    <!-- 引入 jQuery 库 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<h1>竞赛类别表</h1>
+
+<body>
+<table id="Category-table">
+
+    <thead>
+    <tr>
+        <!-- 表头 -->
+        <th>竞赛ID</th>
+        <th>类别名称</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<button id="prevPage" >上一页</button>
+<button id="nextPage">下一页</button>
+
+<script>
+    // 页面加载完成后执行的操作
+    $(document).ready(function() {
+        // 下一页按钮点击事件
+        $('#nextPage').click(function() {
+            window.location.href="Registration"; // 跳转到报名页面
+        });
+        // 上一页按钮点击事件
+        $('#prevPage').on('click', function() {
+            window.location.href = "/competitions"; // 跳转到竞赛页面
+        });
+
+        // 发起 AJAX 请求，获取竞赛类别数据
+        $.ajax({
+            url: '/toCompetitionCategory',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                // 遍历获取的数据
+                $.each(data, function (index, Category) {
+                    // 创建表格行
+                    var listItem = $("<tr></tr>");
+                    // 创建表格列，显示竞赛ID和类别名称
+                    var id = $("<td></td>").text("竞赛id：" + Category.id);
+                    var category_name = $("<td></td>").text("类别名称：" + Category.category_name);
+                    // 创建删除按钮，点击时发起删除请求
+                    var deleteLink = $('<button>删除</button>').on('click', function () {
+                        var confirmDelete = confirm("确定要删除竞赛 ID: " + Category.id + " 吗？");
+                        if (confirmDelete) {
+                            $.ajax({
+                                url: "/DeleteCompetition/" + Category.id,
+                                type: "DELETE",
+                                success: function () {
+                                    listItem.remove(); // 从表格中移除被删除的行
+                                }
+                            });
+                        }
+                    });
+                    // 创建修改链接，点击时跳转到修改页面
+                    var editLink = $(' <a href="#">修改 </a>').on('click', function () {
+                        window.location.href = "/UpdateCompetition?id=" + Category.Id; // 添加用户ID作为参数
+                    });
+
+                    // 将列添加到行中
+                    listItem.append(id);
+                    listItem.append(category_name);
+                    listItem.append(editLink);
+                    listItem.append(deleteLink);
+                    $("#Category-table tbody").append(listItem); // 将行追加到表格体中
+                });
+            },
+        });
+    });
+
+</script>
+</body>
+</html>

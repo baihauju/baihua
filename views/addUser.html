@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+        form {
+            text-align: center;
+        }
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<body background="../static/img/980.jpg" style="background-repeat:no-repeat;background-attachment:fixed;background-size:100% 100%; ">
+
+<div>
+    <h1>欢迎来到学生竞赛管理平台</h1>
+    <h2>管理员登录页面</h2>
+    <form>
+        <div>
+            <label for="username">管理员:</label>
+            <input type="text" id="username" name="username">
+        </div>
+        <div>
+            <label for="password">密码:</label>
+            <input type="password" id="password" name="password">
+        </div>
+        <div>
+            <input type="button" value="确认提交" id="btn">
+        </div>
+    </form>
+    <button id="prevPage" >上一页</button>
+    <div id="center"></div>
+</div>
+
+<script>
+    // 页面加载完成后执行的操作
+    alert("123");
+    // 点击按钮触发的事件
+    $('#btn').click(function() {
+        // 点击上一页按钮触发的事件
+        $('#prevPage').on('click', function() {
+            window.location.href = "/register"; // 跳转到注册页面
+        });
+
+        // 获取输入框中的用户名和密码
+        var username = $('#username').val();
+        var password = $('#password').val();
+
+        alert(username);
+        alert(password);
+
+        // 发起 AJAX 请求，向后端发送登录请求
+        $.ajax({
+            url: '/Login', // 后端控制器路由地址
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({username: username, password: password}), // 发送的数据，将用户名和密码打包为JSON格式
+            success: function (response) {
+                alert("返回的数据：" + response.message);
+                console.log(response);
+                if (response.success) {
+                    $('#result').html('<p>登录成功！</p >'); // 如果成功，显示登录成功信息
+                    window.location.href="userlist"; // 跳转到用户列表页面
+                } else {
+                    $('#result').html('<p>登录失败：' + response.message + '</p >'); // 如果失败，显示登录失败信息
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log('Error occurred: ' + error);
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

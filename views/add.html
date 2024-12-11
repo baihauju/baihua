@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Competition</title>
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+        form {
+            text-align: center;
+        }
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>Add Competition</h1>
+<form id="add-competition-form">
+    <input type="text" name="title" placeholder="Title">
+    <input type="text" name="description" placeholder="Description">
+    <input type="text" name="location" placeholder="Location">
+    <input type="text" name="start_time" placeholder="Start Time">
+    <input type="text" name="end_time" placeholder="End Time">
+    <input type="text" name="is_open_for_registration" placeholder="Is Open for Registration">
+    <button type="submit">Add Competition</button>
+</form>
+
+<script>
+    // 当表单提交时执行
+    $("#add-competition-form").submit(function(event) {
+        // 阻止表单默认的提交行为
+        event.preventDefault();
+
+        // 获取表单数据
+        var formData = {
+            title: $("input[name='title']").val(),
+            description: $("input[name='description']").val(),
+            location: $("input[name='location']").val(),
+            start_time: $("input[name='start_time']").val(),
+            end_time: $("input[name='end_time']").val(),
+            is_open_for_registration: $("input[name='is_open_for_registration']").val()
+        };
+
+        // 发送POST请求给后端
+        $.ajax({
+            type: "POST",
+            url: "/doadd", // 后端处理添加竞赛数据的接口
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            success: function(response) {
+                // 处理后端返回的响应
+                if (response.success) {
+                    alert("Competition added successfully!");
+                    window.location.href="/competitions"
+                } else {
+                    alert("Failed to add competition: " + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                // 处理请求错误
+                alert("Failed to add competition: " + error);
+            }
+        });
+    });
+</script>
+</body>
+</html>

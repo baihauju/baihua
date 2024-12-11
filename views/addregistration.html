@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>报名页面</title><style>
+    body {
+      background: url(../static/img/R-C.jpg) no-repeat fixed;
+      background-size: 100% 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+      color: black;
+    }
+    form {
+      text-align: center;
+    }
+    h1, h2 {
+      font-weight: bold;
+      font-size: 24px;
+      text-align: center;
+    }
+  </style>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h2>报名页面</h2>
+<form id="registrationForm">
+  竞赛id：<input type="text" id="competition_id" name="competition_id" required><br>
+  学生id：<input type="text" id="user_id" name="user_id" required><br>
+  <input type="button" value="提交" id="btn">
+</form>
+<div id="result"></div>
+
+<script>
+  $('#btn').click(function(){
+    var competitionId = parseInt($('#competition_id').val(), 10);
+    var userId = parseInt($('#user_id').val(), 10);
+
+    $.ajax({
+      url: '/doaddregistration',
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({ competition_id: competitionId, user_id: userId }),
+      success: function(response) {
+        alert("返回的数据：" + response.message);
+        console.log(response);
+        if (response.success) {
+          window.location.href = "/Registration";
+        } else {
+          alert("失败: " + response.message);
+        }
+      },
+      error: function(xhr, status, error) {
+        console.log('Error occurred: ' + error);
+      }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>竞赛列表</title>
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+
+        #competitions-table {
+            max-width: 800px;
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        form {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        button, a {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #nextPage {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        button {
+            background-color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+        #prevPage {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+        a {
+            background-color: #007bff;
+            border: 1px solid #007bff;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+<h1>竞赛信息表</h1>
+<table id="competitions-table">
+    <h2>输入竞赛ID</h2>
+    <form id="searchForm">
+        <label for="id">输入ID:</label>
+        <input type="text" id="id" name="id">
+        <button type="submit">搜索</button>
+    </form>
+    <ul id="searchResults"></ul>
+
+    <thead>
+    <tr>
+        <th>竞赛ID</th>
+        <th>标题</th>
+        <th>描述</th>
+        <th>地点</th>
+        <th>开始时间</th>
+        <th>结束时间</th>
+        <th>是否开放注册</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+
+    <tbody></tbody>
+    <button id="prevPage" >上一页</button>
+    <button id="nextPage">下一页</button>
+</table>
+<script>
+    $(document).ready(function() {
+        // 点击下一页按钮触发的事件
+        $('#nextPage').click(function() {
+            window.location.href="/CompetitionCategory";
+        });
+
+        // 点击上一页按钮触发的事件
+        $('#prevPage').on('click', function() {
+            // 在这里指定要跳转到的URL
+            window.location.href = "/userlist";
+        });
+
+        // 使用 AJAX 请求获取竞赛列表数据
+        $.ajax({
+            url: '/tocompetitions',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                // 遍历数据，构建表格行
+                $.each(data, function (index, competition) {
+                    var listItem = $("<tr></tr>");
+                    var Id = $("<td></td>").text("竞赛id：" + competition.Id);
+                    var Title = $("<td></td>").text("标题：" + competition.Title);
+                    var Description = $("<td></td>").text("描述：" + competition.Description);
+                    var Location = $("<td></td>").text("地点：" + competition.Location);
+                    var StartTime = $("<td></td>").text("开始时间：" + competition.StartTime);
+                    var EndTime = $("<td></td>").text("结束时间：" + competition.EndTime);
+                    var IsOpenForRegistration = $("<td></td>").text("是否开放注册：" + competition.IsOpenForRegistration);
+                    var deleteLink = $('<button>删除</button>').on('click', function () {
+                        // 弹出确认框，确定是否删除竞赛
+                        var confirmDelete = confirm("确定要删除竞赛 ID: " + competition.Id + " 吗？");
+                        if (confirmDelete) {
+                            // 发起删除请求
+                            $.ajax({
+                                url: "/DeleteCompetition/" + competition.Id,
+                                type: "DELETE",
+                                success: function () {
+                                    listItem.remove(); // 从表格中移除该行
+                                }
+                            });
+                        }
+                    });
+                    var editLink = $('<a href="#">修改 </a>').on('click', function () {
+                        // 跳转到修改竞赛页面，并将竞赛ID作为参数传递
+                        window.location.href = "/UpdateCompetition?id=" + competition.Id;
+                    });
+                    // 将每个单元格添加到表格行
+                    listItem.append(Id);
+                    listItem.append(Title);
+                    listItem.append(Description);
+                    listItem.append(Location);
+                    listItem.append(StartTime);
+                    listItem.append(EndTime);
+                    listItem.append(IsOpenForRegistration);
+                    listItem.append(editLink);
+                    listItem.append(deleteLink);
+                    // 将表格行添加到表格主体
+                    $("#competitions-table tbody").append(listItem);
+                });
+            },
+        });
+    });
+
+    // 表单提交事件
+    $("#searchForm").submit(function (event) {
+        event.preventDefault();
+        var id = $("#id").val();
+        // 使用 AJAX 请求根据竞赛ID搜索竞赛
+        $.ajax({
+            url: "/competitions/GetByCustomerID/" + id,
+            type: "GET",
+            success: function (data) {
+                $("#searchResults").empty();
+                // 将搜索结果添加到列表中
+                data.forEach(function (search) {
+                    $("#searchResults").append("<li>" + search.id + "，" + search.title + "，" + search.description + "</li>");
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

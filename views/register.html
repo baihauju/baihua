@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>  <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+        form {
+            text-align: center;
+        }
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+<h2>注册页面</h2>
+<form>
+    用户名：<input type="text" id="username" name="username" required><br>
+    密码：<input type="password" id="password" name="password"><br>
+    性别：<input type="radio" name="sex" value="男">男<input type="radio" name="sex" value="女">女<br>
+    年龄：<input type="text" id="age" name="age"><br><br>
+    <input type="button" value="提交" id="btn">
+</form>
+<div id="result"></div>
+
+</body>
+<script>
+    $('#btn').click(function(){
+        var username = $('#username').val();
+        var password = $('#password').val();
+        var sex = $('input[name=sex]:checked').val();
+        var a= $('#age').val();
+        var age= parseInt(a)
+        $.ajax({
+            url: '/doregister', // 后端控制器路由地址
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({ uname: username, upwd: password,usex:sex,uage:age}),
+            success: function(response) {
+                // 处理返回的JSON数据
+                alert("返回的数据："+response.message)
+                console.log(response)
+                if (response.success) {
+                    // $('#result').html('<p>登录成功！</p>');
+
+                } else {
+                    //$('#result').html('<p>登录失败：' + response.message + '</p>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error occurred: ' + error);
+            }
+        });
+        window.location.href="userlist"
+    })
+</script>
+</html>

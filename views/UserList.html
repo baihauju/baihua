@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员列表</title>
+    <style>
+        body {
+            background: url(../static/img/R-C.jpg) no-repeat fixed;
+            background-size: 100% 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: black;
+        }
+
+        #user-list-container {
+            max-width: 600px; /* 设置最大宽度 */
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.8); /* 设置背景颜色及透明度 */
+            padding: 20px;
+            border-radius: 10px; /* 设置边框圆角 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+        }
+
+        h1, h2 {
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        form {
+            text-align: center;
+        }
+        #nextPage {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        #prevPage {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+        ul {
+            list-style: none; /* 移除列表项的默认样式 */
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px; /* 设置列表项之间的间距 */
+            padding: 10px;
+            border: 1px solid #ccc; /* 添加边框 */
+            border-radius: 5px; /* 设置边框圆角 */
+            background-color: #f9f9f9; /* 设置背景颜色 */
+        }
+
+        a, button {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px 10px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff; /* 设置链接和按钮的背景颜色 */
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #dc3545; /* 设置删除按钮的背景颜色 */
+            border: 1px solid #dc3545;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+<h1>管理员列表</h1>
+<h2>输入管理员ID</h2>
+<form id="searchForm">
+    <label for="id">输入ID:</label>
+    <input type="text" id="id" name="id">
+    <button type="submit">搜索</button>
+</form>
+<ul id="searchResults"></ul>
+<ul id="user-list"></ul>
+<button id="prevPage" >上一页</button>
+<button id="nextPage">下一页</button>
+</body>
+<script>
+    function loadUsers() {
+        $('#nextPage').on('click', function() {
+
+        window.location.href = "/competitions";
+    });
+        $('#prevPage').on('click', function() {
+
+            window.location.href = "/register";
+        });
+        $.ajax({
+            url: '/getall',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                $('#user-list').empty();
+                $.each(data, function (index, user) {
+                    var listItem = $('<li>ID: ' + user.id + ', Name: ' + user.uname + ', Sex:' + user.usex + ',Upwd: ' + user.upwd + ' , </li>');
+                    var editLink = $(' <a href="#">修改 </a>').on('click', function () {
+                        window.location.href = "/UpdateUser?id=" + user.id; // 添加用户ID作为参数
+                    });
+                    var deleteLink = $('<button>删除</button>').on('click', function (){
+                        ('删除用户 ID: ' + user.id);
+                        $.ajax({
+                            url:"/deleteuser/"+user.id,
+                            type: "DELETE",
+                            success:function(){
+                                listItem.remove();
+                            }
+                        });
+                    });
+                    listItem.append(editLink).append(deleteLink);
+                    $('#user-list').append(listItem);
+                });
+            },
+            error: function(xhr, status, error) {
+                ("出错了")
+                console.log('Error occurred: ' + error);
+            }
+        });
+    }
+
+
+    loadUsers();// 初始化加载用户列表
+    // 搜索
+    $("#searchForm").submit(function (event) {
+        event.preventDefault();
+        var id = $("#id").val();
+        $.ajax({
+            url: "/userlist/GetByCustomerID/" + id,
+            type: "GET",
+            success: function (data) {
+                $("#searchResults").empty();
+                data.forEach(function (search) {
+                    $("#searchResults").append("<li>" + search.id + "，" + search.uname + "，" + search.usex + "</li>");
+                });
+            }
+
+        });
+
+    });
+</script>
+
+</body>
+
+</html>
